@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Homepage</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+	
+</head>
+<body>
+	<div id="main-container">
+
+		<nav class="navbar  navbar-expand-lg bg-danger">
+			  	<div id="logo">logo</div>
+				<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+			        <a class="nav-link" href="domain_purchase.html">Wykup domenę</a>
+			    </li>
+				<li class="nav-item">
+			        <a class="nav-link" href="domain_maintenance.html">Zarządzaj domenami</a>
+			    </li>
+				<li class="nav-item">
+			        <a class="nav-link" href="domain_availability.html">Sprawdź dostępność domeny</a>
+			    </li>				
+			    <li class="nav-item">
+			        <a class="nav-link" href="#">Kontakt</a>
+			    </li>
+			    </ul>
+		</nav>
+
+<!-- DOTAD HEAD OF THE SITE -->
+
+<div class="container row">
+	<div class="side-menu col-3">
+
+	    <nav id="sidebar">
+	        <div class="sidebar-header">
+	            <h3>Zarządzaj domenami</h3>
+	        </div>
+	
+
+	        <ul class="list-unstyled components">
+	            <li class="nav-link"><a href="domain_maintenance.html">Lista Twoich domen</a></li>
+	            <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false"  class="nav-link">Pages</a>
+	            <ul class="collapse list-unstyled" id="homeSubmenu">
+	                <li class="nav-link"><a href="#">Page</a></li>
+	                <li class="nav-link"><a href="#">Page</a></li>
+	                <li class="nav-link"><a href="#">Page</a></li>
+	            </ul>
+
+	            <li class="nav-link"><a href="#">Statystyki</a></li>
+	        </ul>
+	    </nav>
+
+	</div>
+
+	<div class="maintenance-container col">
+		<div class="card">
+			<h5 class="card-header">Lista Twoich domen</h5>
+			<div class="card-body">
+		    	<h6 class="card-title">Oto lista domen, które posiadasz. Upewnij się, czy wszystkie są aktywne!</h6>
+
+				<table class="table table-striped">
+				  <thead>
+				    <tr>
+				      <th scope="col">#</th>
+				      <th scope="col">Nazwa domeny</th>
+				      <th scope="col">Data wygaśnięcia</th>
+				      <th scope="col">Stan</th>
+				      <th scope="col"> </th>
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <tr>
+				      <th scope="row">1</th>
+				      <td>dummy1.eu.pl</td>
+				      <td>23/05/2019</td>
+				      <td class="text-success">Active</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>
+					<tr>
+				      <th scope="row">2</th>
+				      <td>dummy2.eu.pl</td>
+				      <td>22/01/2019</td>
+				      <td class="text-success">Active</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>
+					<tr>
+				      <th scope="row">3</th>
+				      <td>dummy3.eu.pl</td>
+				      <td>23/05/2017</td>
+				      <td class="text-danger">Inactive</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>				    <tr>
+				      <th scope="row">1</th>
+				      <td>dummy4.eu.pl</td>
+				      <td>18/10/2019</td>
+				      <td class="text-success">Active</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>
+					<tr>
+				      <th scope="row">2</th>
+				      <td>dummy5.eu.pl</td>
+				      <td>06/12/2022</td>
+				      <td class="text-success">Active</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>
+					<tr>
+				      <th scope="row">3</th>
+				      <td>dummy6.eu.pl</td>
+				      <td>12/05/2018</td>
+				      <td class="text-danger">Inactive</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>    
+				    <tr>
+				      <th scope="row">2</th>
+				      <td>dummy5.eu.pl</td>
+				      <td>01/03/2021</td>
+				      <td class="text-success">Active</td>
+				      <td><a href="prolong_domain.html"><span class="btn btn-primary">Przedłuż ważność</span></a></td>
+				    </tr>  
+				  </tbody>
+				</table>
+
+			</div>
+		</div>
+	</div>
+
+</div>
+<!-- ODTAD FOOTER OF THE SITE -->
+
+	<footer>
+		dalej nie wiem co ma być w stopce 
+
+	</footer>
+
+	</div>
+
+</body>
+</html>
