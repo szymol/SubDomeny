@@ -1,0 +1,136 @@
+/* Background pattern from Toptal Subtle Patterns */
+
+body{
+	background-image: url('http://i63.tinypic.com/13ygchu.jpg');
+	color: #f5f7d7;
+}
+
+#main-container{
+	background-color: #e9ecef;
+	width: 80%;
+	height: 100%;
+	margin-top: 6%;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 5px;
+}
+
+#logo{
+	font-size: 2em;
+	margin-right: 13px;
+	padding: 5px 10px 5px 10px;
+	color: #f5f7d7;
+}
+
+#logo a{
+	color: #f5f7d7;
+}
+
+#logo a:hover{
+	text-decoration: none;
+}
+
+
+.nav-item a:hover{
+	color: #000;
+}
+
+.navbar-brand, .nav-link, .btn{
+	color: #f5f7d7;
+}
+
+.container > .side-menu > nav > ul > li{
+	padding: 20px;
+	color: #fff;
+}
+
+.container > .side-menu > nav > ul > li:hover{
+	color: #000;
+}
+
+.container > .side-menu > nav > ul > li a{
+	color: #fff;
+}
+
+
+.container > .side-menu > nav > ul > li a:hover{
+	color: #000;
+	text-decoration: none;
+}
+
+#main-nav{
+	padding: 0 16px 0 16px;
+	height: 200px;
+}
+
+nav > div > ul > li:hover{
+	background-color: #e6717c;
+}
+
+.jumbotron{
+	margin-left: 5%;
+}
+
+
+footer{
+	background-color: #7b7a7a;
+	padding: 30px;
+	color: #f5f7d7;
+	font-size: 0.7rem;	
+}
+
+.row{
+	padding: 10px;
+}
+
+.content-box{
+	width: 60%;
+	margin-top: 7%;
+	margin-bottom: 7%;
+	/*background-color: #bd80801a;*/
+	border-radius: 5px;
+	padding: 30px;
+	margin-left: auto;
+	margin-right: auto;	
+}
+
+.sort-span{
+	font-size: 0.7rem;
+	float: right;
+}
+
+.card-descr{
+	margin: 20px 0 0 20px;
+}
+
+.maintenance-container {
+	padding-left: 0;
+}
+
+.price{
+	text-align: center;
+}
+
+.mini{
+	margin-left: 5px;
+}
+
+.side-menu {
+    color: #fff;
+    background: #495057;
+    width: 30%;
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+}
+
+#sidebar{
+    padding: 20px;
+}
+
+.sidebar-header{
+	padding: 20px;
+}
+
