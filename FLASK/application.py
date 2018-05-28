@@ -21,7 +21,22 @@ class Users(db.Model):
         self.password = password
         self.email = email
 
-def say_hello(username = "World"):
+class Subdomains(db.Model):
+    __tablename__ = 'subdomains'
+    id = db.Column('id_domain', db.Integer, primary_key=True)
+    id_u = db.Column('id_user', db.Integer)
+    name = db.Column('name', db.Unicode)
+    at = db.Column('at', db.Unicode)
+    ip_a = db.Column('ip_adress', db.Unicode)
+
+    def __init__(self, id_u, name, at, ip_a):
+        self.id_u = id_u
+        self.name = name
+        self.at = at
+        self.ip_a = ip_a
+
+
+def say_hello():
     sql = text('select * from users')
     result = db.engine.execute(sql)
     names = []
@@ -29,6 +44,15 @@ def say_hello(username = "World"):
         names.append(row[1])
     names2 = json.dumps(names)
     return jsonify(test=names2)
+
+def existing_subdomains():
+    query = text('select * from subdomains')
+    result = db.engine.execute(query)
+    names = []
+    for row in result:
+        names.append(row[2] + '.' + row[3])
+    names2 = json.dumps(names)
+    return jsonify(subdomains=names2)
 
 def add_user(username):
     update_this = Users.query.filter_by(email='Kaminarious@thunder.jp').first()
@@ -51,6 +75,9 @@ def add_user(username):
 application.add_url_rule('/', 'index', (lambda:
     say_hello()))
 
+application.add_url_rule('/subdomains/', 'subdomains', (lambda:
+    existing_subdomains()))
+
 application.add_url_rule('/add/<username>', 'hello', (lambda username:
     add_user(username)))
 
@@ -60,39 +87,3 @@ if __name__ == "__main__":
     # removed before deploying a production app.
     application.debug = True
     application.run()
-	
-'''
-from flask import Flask, jsonify, render_template, url_for, request, session, redirect
-from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, Api
-
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://subdom2018:subdom2018@subdomdb.casm6gqak8bd.us-east-2.rds.amazonaws.com:5432/subdomdb'
-api = Api(app)
-db = SQLAlchemy(app)
-
-
-def application(environ, start_response):
-    path    = environ['PATH_INFO']
-    method  = environ['REQUEST_METHOD']
-    if method == 'GET':
-        try:
-            if path == '/':
-                response = 'index'
-            elif path == '/scheduled':
-                response = 'hewwo scheduleeee'
-        except (TypeError, ValueError):
-            response = 'Error retrieving request body for async work.'
-    else:
-        response = 'hewwo'
-    status = '200 OK'
-    headers = [('Content-type', 'text/html')]
-
-    start_response(status, headers)
-    return [response]
-
-
-if __name__ == '__main__':
-    app.run(host = '0.0.0.0')
-'''
