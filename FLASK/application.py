@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, json
+from flask import Flask, jsonify, json, request
+from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from sqlalchemy import text
@@ -21,15 +22,49 @@ class Users(db.Model):
         self.password = password
         self.email = email
 
-def say_hello(username = "World"):
-    sql = text('select * from users')
-    result = db.engine.execute(sql)
-    names = []
-    for row in result:
-        names.append(row[1])
-    names2 = json.dumps(names)
-    return jsonify(test=names2)
+class API_Users(MethodView):
+    def get(self, user_id):
+        if user_id is None:
+            sql = text('select * from users')
+            result = db.engine.execute(sql)
+            names = []
+            for row in result:
+                names.append(row[1])
+            names2 = json.dumps(names)
+            return jsonify(test=names2)
+        else:
+            sql = text('select * from users where id = ' + str(user_id))
+            result = db.engine.execute(sql)
+            names = []
+            for row in result:
+                names.append(row[1])
+            names2 = json.dumps(names)
+            return jsonify(test=names2)
 
+    def post(self):
+        return str(request.get_json()['login'])
+
+    def delete(self, user_id):
+        return 'delete user with id == ' + str(user_id)
+
+    def put(self, user_id):
+        return 'update user with id == ' + str(user_id)
+
+
+
+
+user_view = API_Users.as_view('user_api')
+application.add_url_rule('/users/', defaults={'user_id':None},view_func=user_view, methods=['GET'])
+application.add_url_rule('/users/',view_func=user_view, methods=['POST'])
+application.add_url_rule('/users/<int:user_id>',view_func=user_view, methods=['GET','PUT','DELETE'])
+
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    application.debug = True
+    application.run()
+	
+'''
 def add_user(username):
     update_this = Users.query.filter_by(email='Kaminarious@thunder.jp').first()
     if update_this:
@@ -48,20 +83,6 @@ def add_user(username):
         except Exception as e:
             print(e)
 
-application.add_url_rule('/', 'index', (lambda:
-    say_hello()))
-
-application.add_url_rule('/add/<username>', 'hello', (lambda username:
-    add_user(username)))
-
-
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
-	
-'''
 from flask import Flask, jsonify, render_template, url_for, request, session, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
