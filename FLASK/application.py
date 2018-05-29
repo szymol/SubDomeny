@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, json
+from flask import Flask, jsonify, json, request
+from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from sqlalchemy import text
@@ -21,39 +22,49 @@ class Users(db.Model):
         self.password = password
         self.email = email
 
-class Subdomains(db.Model):
-    __tablename__ = 'subdomains'
-    id = db.Column('id_domain', db.Integer, primary_key=True)
-    id_u = db.Column('id_user', db.Integer)
-    name = db.Column('name', db.Unicode)
-    at = db.Column('at', db.Unicode)
-    ip_a = db.Column('ip_adress', db.Unicode)
+class API_Users(MethodView):
+    def get(self, user_id):
+        if user_id is None:
+            sql = text('select * from users')
+            result = db.engine.execute(sql)
+            names = []
+            for row in result:
+                names.append(row[1])
+            names2 = json.dumps(names)
+            return jsonify(test=names2)
+        else:
+            sql = text('select * from users where id = ' + str(user_id))
+            result = db.engine.execute(sql)
+            names = []
+            for row in result:
+                names.append(row[1])
+            names2 = json.dumps(names)
+            return jsonify(test=names2)
 
-    def __init__(self, id_u, name, at, ip_a):
-        self.id_u = id_u
-        self.name = name
-        self.at = at
-        self.ip_a = ip_a
+    def post(self):
+        return str(request.get_json()['login'])
+
+    def delete(self, user_id):
+        return 'delete user with id == ' + str(user_id)
+
+    def put(self, user_id):
+        return 'update user with id == ' + str(user_id)
 
 
-def say_hello():
-    sql = text('select * from users')
-    result = db.engine.execute(sql)
-    names = []
-    for row in result:
-        names.append(row[1])
-    names2 = json.dumps(names)
-    return jsonify(test=names2)
 
-def existing_subdomains():
-    query = text('select * from subdomains')
-    result = db.engine.execute(query)
-    names = []
-    for row in result:
-        names.append(row[2] + '.' + row[3])
-    names2 = json.dumps(names)
-    return jsonify(subdomains=names2)
 
+user_view = API_Users.as_view('user_api')
+application.add_url_rule('/users/', defaults={'user_id':None},view_func=user_view, methods=['GET'])
+application.add_url_rule('/users/',view_func=user_view, methods=['POST'])
+application.add_url_rule('/users/<int:user_id>',view_func=user_view, methods=['GET','PUT','DELETE'])
+
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    application.debug = True
+    application.run()
+	
+'''
 def add_user(username):
     update_this = Users.query.filter_by(email='Kaminarious@thunder.jp').first()
     if update_this:
@@ -72,18 +83,37 @@ def add_user(username):
         except Exception as e:
             print(e)
 
-application.add_url_rule('/', 'index', (lambda:
-    say_hello()))
+from flask import Flask, jsonify, render_template, url_for, request, session, redirect
+from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource, Api
 
-application.add_url_rule('/subdomains/', 'subdomains', (lambda:
-    existing_subdomains()))
+app = Flask(__name__)
 
-application.add_url_rule('/add/<username>', 'hello', (lambda username:
-    add_user(username)))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://subdom2018:subdom2018@subdomdb.casm6gqak8bd.us-east-2.rds.amazonaws.com:5432/subdomdb'
+api = Api(app)
+db = SQLAlchemy(app)
 
 
-if __name__ == "__main__":
-    # Setting debug to True enables debug output. This line should be
-    # removed before deploying a production app.
-    application.debug = True
-    application.run()
+def application(environ, start_response):
+    path    = environ['PATH_INFO']
+    method  = environ['REQUEST_METHOD']
+    if method == 'GET':
+        try:
+            if path == '/':
+                response = 'index'
+            elif path == '/scheduled':
+                response = 'hewwo scheduleeee'
+        except (TypeError, ValueError):
+            response = 'Error retrieving request body for async work.'
+    else:
+        response = 'hewwo'
+    status = '200 OK'
+    headers = [('Content-type', 'text/html')]
+
+    start_response(status, headers)
+    return [response]
+
+
+if __name__ == '__main__':
+    app.run(host = '0.0.0.0')
+'''
