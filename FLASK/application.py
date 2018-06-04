@@ -16,11 +16,62 @@ class Users(db.Model):
     login = db.Column('login', db.Unicode)
     password = db.Column('password', db.Unicode)
     email = db.Column('email', db.Unicode)
+    last_login_date = db.Column('last_login_date', db.Date)
+    registration_date = db.Column('registration_date', db.Date)
+    subdomains = db.relationship('Subdomains', backref='user', lazy=True)
 
-    def __init__(self, login, password, email):
+    def __init__(self, login, password, email, last_login_date, registration_date, subdomains):
         self.login = login
         self.password = password
         self.email = email
+        self.last_login_date = last_login_date
+        self.registration_date = registration_date
+        self.subdomains = subdomains
+
+class Subdomains(db.Model):
+    __tablename = 'subdomains'
+    id_domain = db.Column('id_domain', db.Integer, primary_key = True)
+    id_user = db.Column('id_user', db.Integer, db.ForeignKey('users.id'))
+    name = db.Column('name', db.Unicode)
+    at = db.Column('at', db.Unicode)
+    ip_address = db.Column('ip_address', db.Unicode)
+    purchase_date = db.Column('purchase_date', db.Date)
+    expiration_date = db.Column('expiration_date', db.Date)
+    status = db.Column('status', db.Unicode)
+
+
+    def __init__(self, id_user, name, at, ip_address, purchase_date, expiration_date, status):
+        self.id_user = id_user
+        self.name = name
+        self.at = at
+        self.ip_address = ip_address
+        self.purchase_date = purchase_date
+        self.expiration_date = expiration_date
+        self.status = status
+
+
+class Address(db.Model):
+    __tablename = 'addresses'
+    id = db.Column('id', db.Integer, primary_key = True)
+    id_user = db.Column('id_user', db.Integer, db.ForeignKey('users.id'))
+    country = db.Column('country', db.Unicode)
+    state = db.Column('state', db.Unicode)
+    city = db.Column('city', db.Unicode)
+    street = db.Column('street', db.Unicode)
+    house_nr = db.Column('house_nr', db.Integer)
+    apartment_nr = db.Column('apartment_nr', db.Unicode)
+    postal_code = db.Column('postal_code', db.Integer)
+
+    def __init__(self, id_user, country, state, city, street, house_nr, apartment_nr, postal_code):
+        self.id_user = id_user
+        self.country = country
+        self.state = state
+        self.city = city
+        self.street = street
+        self.house_nr = house_nr
+        self.apartment_nr = apartment_nr
+        self.postal_code = postal_code
+
 
 class API_Users(MethodView):
     def get(self, user_id):
@@ -48,21 +99,110 @@ class API_Users(MethodView):
         return 'delete user with id == ' + str(user_id)
 
     def put(self, user_id):
-        return 'update user with id == ' + str(user_id)
+        columns = request.get_json()['columns']
+        values = request.get_json()['values']
+        string = "UPDATE users SET "
+        for i in range (len(columns) - 1):
+            string = string \
+                    + str(columns[i]) \
+                    + " = '" + str(values[i]) \
+                    + "', "
+        string = string \
+                + str(columns[len(columns) - 1]) \
+                + " = '" + str(values[len(columns) - 1]) \
+                + "' WHERE id = " \
+                + str(user_id)
+        result = db.engine.execute(string)
+        return(string)
+
+class API_Subdomains(MethodView):
+    def get(self,user_id):
+        if user_id is None:
+            all_subdoms = Subdomains.query.all()
+            subdoms_dict = []
+
+            for subdom in all_subdoms:
+                subdom_dict = {
+                    'id_domain' : subdom.id_domain,
+                    'id_user' : subdom.id_user,
+                    'name' : subdom.name,
+                    'at' : subdom.at,
+                    'ip_address' : subdom.ip_address,
+                    'purchase_date' : subdom.purchase_date,
+                    'expiration_date' : subdom.expiration_date,
+                    'status' : subdom.status}
+                subdoms_dict.append(subdom_dict)
+
+            return json.dumps(subdoms_dict)
+        else:
+            all_subdoms = Subdomains.query.filter(Subdomains.id_user == user_id)
+            subdoms_dict = []
+
+            for subdom in all_subdoms:
+                subdom_dict = {
+                    'id_domain' : subdom.id_domain,
+                    'id_user' : subdom.id_user,
+                    'name' : subdom.name,
+                    'at' : subdom.at,
+                    'ip_address' : subdom.ip_address,
+                    'purchase_date' : subdom.purchase_date,
+                    'expiration_date' : subdom.expiration_date}
+                subdoms_dict.append(subdom_dict)
+
+            return json.dumps(subdoms_dict)
+
+    def post(self):
+        id_user = request.get_json()['id_user']
+        name = request.get_json()['name']
+        at = request.get_json()['at']
+        ip_address = request.get_json()['ip_address']
+        purchase_date = request.get_json()['purchase_date']
+        expiration_date = request.get_json()['expiration_date']
+
+        new_subdom = Subdomains(id_user, name, at, ip_address, purchase_date, expiration_date, 'ACTIVE')
+        db.session.add(new_subdom)
+        db.session.commit()
+    
+    def put(self, subdomain_id):
+        columns = request.get_json()['columns']
+        values = request.get_json()['values']
+        string = "UPDATE subdomains SET "
+        for i in range (len(columns) - 1):
+            string = string \
+                    + str(columns[i]) \
+                    + " = '" + str(values[i]) \
+                    + "', "
+        string = string \
+                + str(columns[len(columns) - 1]) \
+                + " = '" + str(values[len(columns) - 1]) \
+                + "' WHERE id_domain = " \
+                + str(subdomain_id)
+        result = db.engine.execute(string)
+        return(string)
 
 
 
 
 user_view = API_Users.as_view('user_api')
+subdom_view = API_Subdomains.as_view('sub_api')
 application.add_url_rule('/users/', defaults={'user_id':None},view_func=user_view, methods=['GET'])
 application.add_url_rule('/users/',view_func=user_view, methods=['POST'])
 application.add_url_rule('/users/<int:user_id>',view_func=user_view, methods=['GET','PUT','DELETE'])
+application.add_url_rule('/users/<int:user_id>/subdomains/', view_func=subdom_view, methods=['GET'])
+application.add_url_rule('/subdomains/', defaults={'user_id':None},view_func=subdom_view, methods=['GET'])
+application.add_url_rule('/subdomains/',view_func=subdom_view, methods=['POST'])
+application.add_url_rule('/subdomains/<int:subdomain_id>',view_func=subdom_view, methods=['PUT'])
+
 
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app.
     application.debug = True
     application.run()
+
+
+
+
 	
 '''
 def add_user(username):
