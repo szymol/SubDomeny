@@ -3,12 +3,18 @@ from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from sqlalchemy import text
+#import psycopg2
+
 
 application = Flask(__name__)
 
 application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://subdom2018:subdom2018@subdom2018.cfijc6ozllle.eu-central-1.rds.amazonaws.com:1433/subdom2018'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(application)
+
+#################
+### db models ###
+#################
 
 class Users(db.Model):
     __tablename_ = 'users'
@@ -49,7 +55,6 @@ class Subdomains(db.Model):
         self.expiration_date = expiration_date
         self.status = status
 
-
 class Address(db.Model):
     __tablename = 'addresses'
     id = db.Column('id', db.Integer, primary_key = True)
@@ -72,25 +77,43 @@ class Address(db.Model):
         self.apartment_nr = apartment_nr
         self.postal_code = postal_code
 
+################
+### API func ###
+################
 
 class API_Users(MethodView):
     def get(self, user_id):
         if user_id is None:
-            sql = text('select * from users')
-            result = db.engine.execute(sql)
-            names = []
-            for row in result:
-                names.append(row[1])
-            names2 = json.dumps(names)
-            return jsonify(test=names2)
+            count = db.engine.execute("select count(id) from users")
+            count2 = count.fetchall()
+            count = count2[0][0]
+            result = db.engine.execute("select * from users")
+            row = result.fetchall()
+            list = []
+            for i in range(count):
+                subdom_dict = {
+                    'id' : row[i][0],
+                    'login' : row[i][1],
+                    'password' : row[i][2],
+                    'email' : row[i][3],
+                    'last_login_date' : str(row[i][4]),
+                    'registration_date' : str(row[i][5])}
+                list.append(subdom_dict)
+            
+            return json.dumps(list)
+
         else:
-            sql = text('select * from users where id = ' + str(user_id))
-            result = db.engine.execute(sql)
-            names = []
-            for row in result:
-                names.append(row[1])
-            names2 = json.dumps(names)
-            return jsonify(test=names2)
+            result = db.engine.execute("select * from users where id = '" + str(user_id) + "'")
+            row = result.fetchall()
+            subdom_dict = {
+                'id' : row[0][0],
+                'login' : row[0][1],
+                'password' : row[0][2],
+                'email' : row[0][3],
+                'last_login_date' : str(row[0][4]),
+                'registration_date' : str(row[0][5])}
+            
+            return json.dumps(subdom_dict)
 
     def post(self):
         return str(request.get_json()['login'])
@@ -113,43 +136,51 @@ class API_Users(MethodView):
                 + "' WHERE id = " \
                 + str(user_id)
         result = db.engine.execute(string)
-        return(string)
+        return json.dumps({'message' : 'success'})
 
 class API_Subdomains(MethodView):
     def get(self,user_id):
         if user_id is None:
-            all_subdoms = Subdomains.query.all()
-            subdoms_dict = []
-
-            for subdom in all_subdoms:
+            count = db.engine.execute("select count(id_domain) from subdomains")
+            count2 = count.fetchall()
+            count = count2[0][0]
+            result = db.engine.execute("select * from subdomains")
+            row = result.fetchall()
+            list = []
+            for i in range(count):
                 subdom_dict = {
-                    'id_domain' : subdom.id_domain,
-                    'id_user' : subdom.id_user,
-                    'name' : subdom.name,
-                    'at' : subdom.at,
-                    'ip_address' : subdom.ip_address,
-                    'purchase_date' : subdom.purchase_date,
-                    'expiration_date' : subdom.expiration_date,
-                    'status' : subdom.status}
-                subdoms_dict.append(subdom_dict)
+                    'id_domain' : row[i][0],
+                    'id_user' : row[i][1],
+                    'name' : row[i][2],
+                    'at' : row[i][3],
+                    'ip_address' : row[i][4],
+                    'purchase_date' : str(row[i][5]),
+                    'expiration_date' : str(row[i][6]),
+                    'status' : row[i][7]}
+                list.append(subdom_dict)
+            
+            return json.dumps(list)
 
-            return json.dumps(subdoms_dict)
         else:
-            all_subdoms = Subdomains.query.filter(Subdomains.id_user == user_id)
-            subdoms_dict = []
-
-            for subdom in all_subdoms:
+            count = db.engine.execute("select count(id_domain) from subdomains WHERE id_user = '" + str(user_id) + "'")
+            count2 = count.fetchall()
+            count = count2[0][0]
+            result = db.engine.execute("select * from subdomains WHERE id_user = '" + str(user_id) + "'")
+            row = result.fetchall()
+            list = []
+            for i in range(count):
                 subdom_dict = {
-                    'id_domain' : subdom.id_domain,
-                    'id_user' : subdom.id_user,
-                    'name' : subdom.name,
-                    'at' : subdom.at,
-                    'ip_address' : subdom.ip_address,
-                    'purchase_date' : subdom.purchase_date,
-                    'expiration_date' : subdom.expiration_date}
-                subdoms_dict.append(subdom_dict)
-
-            return json.dumps(subdoms_dict)
+                    'id_domain' : row[i][0],
+                    'id_user' : row[i][1],
+                    'name' : row[i][2],
+                    'at' : row[i][3],
+                    'ip_address' : row[i][4],
+                    'purchase_date' : str(row[i][5]),
+                    'expiration_date' : str(row[i][6]),
+                    'status' : row[i][7]}
+                list.append(subdom_dict)
+            
+            return json.dumps(list)
 
     def post(self):
         id_user = request.get_json()['id_user']
@@ -162,7 +193,9 @@ class API_Subdomains(MethodView):
         new_subdom = Subdomains(id_user, name, at, ip_address, purchase_date, expiration_date, 'ACTIVE')
         db.session.add(new_subdom)
         db.session.commit()
-    
+
+        return json.dumps({'message' : 'success'})
+
     def put(self, subdomain_id):
         columns = request.get_json()['columns']
         values = request.get_json()['values']
@@ -178,11 +211,13 @@ class API_Subdomains(MethodView):
                 + "' WHERE id_domain = " \
                 + str(subdomain_id)
         result = db.engine.execute(string)
-        return(string)
+        
+        return json.dumps({'message' : 'success'})
 
 
-
-
+##############
+### routes ###
+##############
 user_view = API_Users.as_view('user_api')
 subdom_view = API_Subdomains.as_view('sub_api')
 application.add_url_rule('/users/', defaults={'user_id':None},view_func=user_view, methods=['GET'])
