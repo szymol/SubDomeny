@@ -10,12 +10,13 @@ Dane zwracane są jako JSONy. Nazwy kolumn i tablic są po angielsku.
 wyświetla dane wszystkich użytkowników w formie:
 `
     {
-    "email": string (Unicode),  
-    "id": int,
+    "email": string (Unicode),
     "last_login_date": string (format daty: "2018-06-04"),
     "login": string (Unicode),
     "password": string (Unicode),
-    "registration_date": string (format daty: "2018-06-04")
+    "registration_date": string (format daty: "2018-06-04"),
+    "first_name": string (Unicode),
+    "last_name": string (Unicode)
     },
     ...
 `
@@ -25,7 +26,7 @@ wyświetla dane wszystkich użytkowników w formie:
 
 ### users/\<int:user_id\>
 #### GET:
-Wyświetla dane konkretnego usera o id = user_id, w takiej samej formie jak GET users/
+Wyświetla dane konkretnego usera o id = user_id, w takiej samej formie jak GET users/ + id i hasło
 #### PUT:
 zmienia dane użytkownika o id = user_id na podstawie JSONa otrzymanego *w danej formie:*
 `
