@@ -3,8 +3,6 @@ from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Resource, Api
 from sqlalchemy import text
-#import psycopg2
-
 
 application = Flask(__name__)
 
@@ -24,15 +22,19 @@ class Users(db.Model):
     email = db.Column('email', db.Unicode)
     last_login_date = db.Column('last_login_date', db.Date)
     registration_date = db.Column('registration_date', db.Date)
+    first_name = db.Column('first_name', db.Unicode)
+    last_name = db.Column('last_name', db.Unicode)
     subdomains = db.relationship('Subdomains', backref='user', lazy=True)
 
-    def __init__(self, login, password, email, last_login_date, registration_date, subdomains):
+    def __init__(self, login, password, email, last_login_date, registration_date, subdomains, first_name, last_name):
         self.login = login
         self.password = password
         self.email = email
         self.last_login_date = last_login_date
         self.registration_date = registration_date
         self.subdomains = subdomains
+        self.first_name = first_name
+        self.last_name = last_name
 
 class Subdomains(db.Model):
     __tablename = 'subdomains'
@@ -82,7 +84,7 @@ class Address(db.Model):
 ################
 
 class API_Users(MethodView):
-    def get(self, user_id):
+   def get(self, user_id):
         if user_id is None:
             count = db.engine.execute("select count(id) from users")
             count2 = count.fetchall()
@@ -92,12 +94,14 @@ class API_Users(MethodView):
             list = []
             for i in range(count):
                 subdom_dict = {
-                    'id' : row[i][0],
+                    #'id' : row[i][0],
                     'login' : row[i][1],
-                    'password' : row[i][2],
+                    #'password' : row[i][2],
                     'email' : row[i][3],
                     'last_login_date' : str(row[i][4]),
-                    'registration_date' : str(row[i][5])}
+                    'registration_date' : str(row[i][5]),
+                    'first_name' : row[i][6],
+                    'last_name' : row[i][7]}
                 list.append(subdom_dict)
             
             return json.dumps(list)
@@ -111,7 +115,9 @@ class API_Users(MethodView):
                 'password' : row[0][2],
                 'email' : row[0][3],
                 'last_login_date' : str(row[0][4]),
-                'registration_date' : str(row[0][5])}
+                'registration_date' : str(row[0][5]),
+                'first_name' : row[0][6],
+                'last_name' : row[0][7]}
             
             return json.dumps(subdom_dict)
 
