@@ -89,7 +89,12 @@ Wyświetla wiadomość czy subdomana o podanym name jest zajęta czy nie.
 
 ### addresses/ (może nie działać)
 #### GET:
-Wyświetla błąd, że nie podało się id użytkownika
+Zwraca komunikat:
+
+    {
+    "message" : "user doesn't have an address"
+    }
+    
 ### addresses/\<int:user_id\>
 #### GET:
 
