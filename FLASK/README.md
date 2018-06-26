@@ -1,7 +1,7 @@
 # API
 
 ### Główna strona:
-http://flask-env.gepn8fd8hx.eu-central-1.elasticbeanstalk.com/
+http://api-dev.yfqrqedkkf.eu-central-1.elasticbeanstalk.com <br/>
 Wszystkie adresy podane poniżej trzeba dopisać do tego adresu, po '/'.
 Dane zwracane są jako JSONy. Nazwy kolumn i tablic są po angielsku.
 
