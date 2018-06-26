@@ -94,13 +94,13 @@ Wyświetla błąd, że nie podało się id użytkownika
 #### GET:
 
     {
-    'id' : int,
-    'id_user' : int,
-    'country' : string,
-    'state' : string,
-    'city' : string,
-    'street' : string,
-    'house_nr' : int,
-    'apartment_nr' : string,
-    'postal_code' : int}
+    "id" : int,
+    "id_user" : int,
+    "country" : string,
+    "state" : string,
+    "city" : string,
+    "street" : string,
+    "house_nr" : int,
+    "apartment_nr" : string,
+    "postal_code" : int}
     }
