@@ -83,8 +83,31 @@ class Address(db.Model):
 ### API func ###
 ################
 
+class API_Addresses(MethodView):
+    def get(self, user_id):
+        if user_id is None:
+            json.dumps({'message' : 'no user id'}, ensure_ascii=False)
+
+        else:
+            result = db.engine.execute("select * from addresses where id_user = '" + str(user_id) + "'")
+            row = result.fetchall()
+            subdom_dict = {
+                'id' : row[0][0],
+                'id_user' : row[0][1],
+                'country' : row[0][2],
+                'state' : row[0][3],
+                'city' : row[0][4],
+                'street' : row[0][5],
+                'house_nr' : row[0][6],
+                'apartment_nr' : row[0][7],
+                'postal_code' : row[0][8]}
+            
+            return json.dumps(subdom_dict, ensure_ascii=False)
+
+
+
 class API_Users(MethodView):
-   def get(self, user_id):
+    def get(self, user_id):
         if user_id is None:
             count = db.engine.execute("select count(id) from users")
             count2 = count.fetchall()
@@ -104,7 +127,7 @@ class API_Users(MethodView):
                     'last_name' : row[i][7]}
                 list.append(subdom_dict)
             
-            return json.dumps(list)
+            return json.dumps(list, ensure_ascii=False)
 
         else:
             result = db.engine.execute("select * from users where id = '" + str(user_id) + "'")
@@ -119,7 +142,7 @@ class API_Users(MethodView):
                 'first_name' : row[0][6],
                 'last_name' : row[0][7]}
             
-            return json.dumps(subdom_dict)
+            return json.dumps(subdom_dict, ensure_ascii=False)
 
     def post(self):
         return str(request.get_json()['login'])
@@ -142,7 +165,7 @@ class API_Users(MethodView):
                 + "' WHERE id = " \
                 + str(user_id)
         result = db.engine.execute(string)
-        return json.dumps({'message' : 'success'})
+        return json.dumps({'message' : 'success'}, ensure_ascii=False)
 
 class API_Subdomains(MethodView):
     def get(self,user_id):
@@ -165,7 +188,7 @@ class API_Subdomains(MethodView):
                     'status' : row[i][7]}
                 list.append(subdom_dict)
             
-            return json.dumps(list)
+            return json.dumps(list, ensure_ascii=False)
 
         else:
             count = db.engine.execute("select count(id_domain) from subdomains WHERE id_user = '" + str(user_id) + "'")
@@ -186,7 +209,7 @@ class API_Subdomains(MethodView):
                     'status' : row[i][7]}
                 list.append(subdom_dict)
             
-            return json.dumps(list)
+            return json.dumps(list, ensure_ascii=False)
 
     def post(self):
         id_user = request.get_json()['id_user']
@@ -200,7 +223,7 @@ class API_Subdomains(MethodView):
         db.session.add(new_subdom)
         db.session.commit()
 
-        return json.dumps({'message' : 'success'})
+        return json.dumps({'message' : 'success'}, ensure_ascii=False)
 
     def put(self, subdomain_id):
         columns = request.get_json()['columns']
@@ -218,7 +241,38 @@ class API_Subdomains(MethodView):
                 + str(subdomain_id)
         result = db.engine.execute(string)
         
-        return json.dumps({'message' : 'success'})
+        return json.dumps({'message' : 'success'}, ensure_ascii=False)
+
+class API_Names(MethodView):
+    def get(self, name):
+        if name is None:
+            count = db.engine.execute("select count(id_domain) from subdomains")
+            count2 = count.fetchall()
+            count = count2[0][0]
+            result = db.engine.execute("select * from subdomains")
+            row = result.fetchall()
+            list = []
+            for i in range(count):
+                subdom_dict = {
+                    'id_domain' : row[i][0],
+                    'id_user' : row[i][1],
+                    'name' : row[i][2],
+                    'at' : row[i][3],
+                    'ip_address' : row[i][4],
+                    'purchase_date' : str(row[i][5]),
+                    'expiration_date' : str(row[i][6]),
+                    'status' : row[i][7]}
+                list.append(subdom_dict)
+            
+            return json.dumps(list, ensure_ascii=False)
+        else:
+            count = db.engine.execute("select count(id_domain) from subdomains WHERE name = '" + str(name) + "'")
+            count2 = count.fetchall()
+            count = count2[0][0]
+            if count == 0:
+                return json.dumps({'message' : 'free'}, ensure_ascii=False)
+            else:
+                return json.dumps({'message' : 'taken'}, ensure_ascii=False)
 
 
 ##############
@@ -226,13 +280,24 @@ class API_Subdomains(MethodView):
 ##############
 user_view = API_Users.as_view('user_api')
 subdom_view = API_Subdomains.as_view('sub_api')
+names_view = API_Names.as_view('names_api')
+adresses_view = API_Addresses.as_view('addresses_api')
+
 application.add_url_rule('/users/', defaults={'user_id':None},view_func=user_view, methods=['GET'])
 application.add_url_rule('/users/',view_func=user_view, methods=['POST'])
 application.add_url_rule('/users/<int:user_id>',view_func=user_view, methods=['GET','PUT','DELETE'])
 application.add_url_rule('/users/<int:user_id>/subdomains/', view_func=subdom_view, methods=['GET'])
+
 application.add_url_rule('/subdomains/', defaults={'user_id':None},view_func=subdom_view, methods=['GET'])
 application.add_url_rule('/subdomains/',view_func=subdom_view, methods=['POST'])
 application.add_url_rule('/subdomains/<int:subdomain_id>',view_func=subdom_view, methods=['PUT'])
+
+application.add_url_rule('/names/', defaults={'name':None},view_func=names_view, methods=['GET'])
+application.add_url_rule('/names/<string:name>', view_func=names_view, methods=['GET'])
+
+application.add_url_rule('/addresses/', defaults={'user_id':None},view_func=adresses_view, methods=['GET'])
+application.add_url_rule('/addresses/<int:user_id>', view_func=adresses_view, methods=['GET'])
+
 
 
 if __name__ == "__main__":
@@ -240,61 +305,4 @@ if __name__ == "__main__":
     # removed before deploying a production app.
     application.debug = True
     application.run()
-
-
-
-
 	
-'''
-def add_user(username):
-    update_this = Users.query.filter_by(email='Kaminarious@thunder.jp').first()
-    if update_this:
-        try:
-            update_this.login = username
-            db.session.commit()
-            return('successfully updated the login to ' + str(username) +'!')
-        except Exception as e:
-            print(e)
-    else:
-        new_user = Users(username, 'zappityzap', 'Kaminarious@thunder.jp')
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-            return('successfully created new user!')
-        except Exception as e:
-            print(e)
-
-from flask import Flask, jsonify, render_template, url_for, request, session, redirect
-from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, Api
-
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://subdom2018:subdom2018@subdomdb.casm6gqak8bd.us-east-2.rds.amazonaws.com:5432/subdomdb'
-api = Api(app)
-db = SQLAlchemy(app)
-
-
-def application(environ, start_response):
-    path    = environ['PATH_INFO']
-    method  = environ['REQUEST_METHOD']
-    if method == 'GET':
-        try:
-            if path == '/':
-                response = 'index'
-            elif path == '/scheduled':
-                response = 'hewwo scheduleeee'
-        except (TypeError, ValueError):
-            response = 'Error retrieving request body for async work.'
-    else:
-        response = 'hewwo'
-    status = '200 OK'
-    headers = [('Content-type', 'text/html')]
-
-    start_response(status, headers)
-    return [response]
-
-
-if __name__ == '__main__':
-    app.run(host = '0.0.0.0')
-'''
