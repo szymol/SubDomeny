@@ -86,23 +86,29 @@ class Address(db.Model):
 class API_Addresses(MethodView):
     def get(self, user_id):
         if user_id is None:
-            json.dumps({'message' : 'no user id'}, ensure_ascii=False)
+            return json.dumps({'message' : 'no user id'}, ensure_ascii=False)
 
         else:
-            result = db.engine.execute("select * from addresses where id_user = '" + str(user_id) + "'")
-            row = result.fetchall()
-            subdom_dict = {
-                'id' : row[0][0],
-                'id_user' : row[0][1],
-                'country' : row[0][2],
-                'state' : row[0][3],
-                'city' : row[0][4],
-                'street' : row[0][5],
-                'house_nr' : row[0][6],
-                'apartment_nr' : row[0][7],
-                'postal_code' : row[0][8]}
-            
-            return json.dumps(subdom_dict, ensure_ascii=False)
+            count = db.engine.execute("select count(id) from addresses where id_user = '" + str(user_id) + "'")
+            count2 = count.fetchall()
+            count = count2[0][0]
+            if count != 0:
+                result = db.engine.execute("select * from addresses where id_user = '" + str(user_id) + "'")
+                row = result.fetchall()
+                subdom_dict = {
+                    'id' : row[0][0],
+                    'id_user' : row[0][1],
+                    'country' : row[0][2],
+                    'state' : row[0][3],
+                    'city' : row[0][4],
+                    'street' : row[0][5],
+                    'house_nr' : row[0][6],
+                    'apartment_nr' : row[0][7],
+                    'postal_code' : row[0][8]}
+                
+                return json.dumps(subdom_dict, ensure_ascii=False)
+            else:
+                return json.dumps({'message' : "user doesn't have an address"}, ensure_ascii=False)
 
 
 
@@ -305,4 +311,3 @@ if __name__ == "__main__":
     # removed before deploying a production app.
     application.debug = True
     application.run()
-	
