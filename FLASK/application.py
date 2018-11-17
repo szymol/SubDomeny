@@ -1,13 +1,17 @@
 from flask import Flask, jsonify, json, request
 from flask.views import MethodView
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from flask_restful import Resource, Api
 from sqlalchemy import text
 
 application = Flask(__name__)
+jwt = JWTManager(application)
 
 application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://subdom2018:subdom2018@subdom2018.cfijc6ozllle.eu-central-1.rds.amazonaws.com:1433/subdom2018'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
 db = SQLAlchemy(application)
 
 #################
@@ -83,7 +87,36 @@ class Address(db.Model):
 ### API func ###
 ################
 
+class Authorize(MethodView):
+    def post(self):
+        login = str(request.get_json()['login'])
+        password = str(request.get_json()['password'])
+        
+        current_user = Users.query.filter_by(login = login, password = password).first()
+        if (current_user):
+            access_token = create_access_token(identity = str(request.get_json()['login']))
+            refresh_token = create_refresh_token(identity = str(request.get_json()['login']))
+            return json.dumps({
+                'message' : 'success',
+                'access_token' : access_token,
+                'refresh_token' : refresh_token
+            })
+        else:
+            return json.dumps({
+                'message' : 'invalid credentials'
+            })
+
+class TokenRefresh(MethodView):
+    @jwt_refresh_token_required
+    def post(self):
+        current_user = get_jwt_identity()
+        access_token = create_access_token(identity = current_user)
+        return json.dumps({
+            'access_token': access_token
+            })
+
 class API_Addresses(MethodView):
+    @jwt_required
     def get(self, user_id):
         if user_id is None:
             return json.dumps({'message' : 'no user id'}, ensure_ascii=False)
@@ -110,9 +143,8 @@ class API_Addresses(MethodView):
             else:
                 return json.dumps({'message' : "user doesn't have an address"}, ensure_ascii=False)
 
-
-
 class API_Users(MethodView):
+    @jwt_required
     def get(self, user_id):
         if user_id is None:
             count = db.engine.execute("select count(id) from users")
@@ -153,6 +185,10 @@ class API_Users(MethodView):
     def post(self):
         return str(request.get_json()['login'])
 
+    def post(self, login):
+        if login == 'login':
+            return str('login')
+
     def delete(self, user_id):
         return 'delete user with id == ' + str(user_id)
 
@@ -174,6 +210,7 @@ class API_Users(MethodView):
         return json.dumps({'message' : 'success'}, ensure_ascii=False)
 
 class API_Subdomains(MethodView):
+    @jwt_required
     def get(self,user_id):
         if user_id is None:
             count = db.engine.execute("select count(id_domain) from subdomains")
@@ -250,6 +287,7 @@ class API_Subdomains(MethodView):
         return json.dumps({'message' : 'success'}, ensure_ascii=False)
 
 class API_Names(MethodView):
+    @jwt_required
     def get(self, name):
         if name is None:
             count = db.engine.execute("select count(id_domain) from subdomains")
@@ -288,9 +326,14 @@ user_view = API_Users.as_view('user_api')
 subdom_view = API_Subdomains.as_view('sub_api')
 names_view = API_Names.as_view('names_api')
 adresses_view = API_Addresses.as_view('addresses_api')
+auth = Authorize.as_view('auth')
+refresh = TokenRefresh.as_view('refresh')
+
+application.add_url_rule('/login/', view_func=auth, methods=['POST'])
+application.add_url_rule('/refresh/', view_func=refresh, methods=['POST'])
 
 application.add_url_rule('/users/', defaults={'user_id':None},view_func=user_view, methods=['GET'])
-application.add_url_rule('/users/',view_func=user_view, methods=['POST'])
+application.add_url_rule('/users/', view_func=user_view, methods=['POST'])
 application.add_url_rule('/users/<int:user_id>',view_func=user_view, methods=['GET','PUT','DELETE'])
 application.add_url_rule('/users/<int:user_id>/subdomains/', view_func=subdom_view, methods=['GET'])
 

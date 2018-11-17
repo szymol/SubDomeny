@@ -1,9 +1,9 @@
 branch-defaults:
   default:
-    environment: flask-env
+    environment: api-dev
     group_suffix: null
 global:
-  application_name: flask-api
+  application_name: api-dev
   branch: null
   default_ec2_keyname: null
   default_platform: python-3.6
@@ -16,3 +16,6 @@ global:
   repository: null
   sc: null
   workspace_type: Application
+container_commands:
+  01_wsgipass:
+    command: 'echo "WSGIPassAuthorization On" >> ../wsgi.conf'
