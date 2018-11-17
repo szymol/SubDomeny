@@ -1,9 +1,27 @@
 # API
 
 ### Główna strona:
-http://api-dev.yfqrqedkkf.eu-central-1.elasticbeanstalk.com <br/>
+https://www.api.subdom.name <br/>
 Wszystkie adresy podane poniżej trzeba dopisać do tego adresu, po '/'.
 Dane zwracane są jako JSONy. Nazwy kolumn i tablic są po angielsku.
+
+### login/
+#### POST:
+do wysłania:
+`
+    {
+    "login" : login,
+    "password" : pass
+    }
+`
+jeżeli podana para danych istnieje, zwraca access token, który jest potrzebny do całej reszty (dodajemy do **headers**:
+`
+    {
+    ...
+    "Authentication" : "Bearer TOKEN",
+    ...
+    }
+`
 
 ### users/
 #### GET:
@@ -89,7 +107,12 @@ Wyświetla wiadomość czy subdomana o podanym name jest zajęta czy nie.
 
 ### addresses/ (może nie działać)
 #### GET:
-Wyświetla błąd, że nie podało się id użytkownika
+Zwraca komunikat:
+
+    {
+    "message" : "user doesn't have an address"
+    }
+    
 ### addresses/\<int:user_id\>
 #### GET:
 
